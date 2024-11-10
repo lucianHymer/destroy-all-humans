@@ -4,13 +4,20 @@ version = "0.1.0"
 description = ""
 authors = ["Lucian Hymer <github@lucianhymer.com>"]
 readme = "README.md"
-package-mode = false
+packages = [
+    { include = "src" }
+]
 
 [tool.poetry.dependencies]
 python = "^3.12"
 sentence-transformers = "^3.2.1"
 click = "^8.1.7"
 
+[tool.poetry.dev-dependencies]
+black = "*"
+
+[tool.poetry.scripts]
+generate_embedding = "src.main:generate_embedding"
 
 [build-system]
 requires = ["poetry-core"]

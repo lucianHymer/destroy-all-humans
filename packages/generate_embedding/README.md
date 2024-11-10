@@ -3,6 +3,7 @@
 ## Usage
 
 ```bash
-make
-echo abc | ./generate_embedding > embedding.out
+poetry install
+poetry run generate_embedding --help
+echo abc | poetry run generate_embedding > embedding.out
 ```
