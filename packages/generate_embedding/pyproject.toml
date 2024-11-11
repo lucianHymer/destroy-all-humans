@@ -12,6 +12,7 @@ packages = [
 python = "^3.12"
 sentence-transformers = "^3.2.1"
 click = "^8.1.7"
+xformers = "^0.0.28.post3"
 
 [tool.poetry.dev-dependencies]
 black = "*"
