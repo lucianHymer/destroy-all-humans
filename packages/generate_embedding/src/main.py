@@ -2,14 +2,23 @@ import sys
 import click
 from sentence_transformers import SentenceTransformer
 
-model = SentenceTransformer("dunzhang/stella_en_400M_v5", trust_remote_code=True)
-
 sentences = [
     "That is a happy person",
     "That is a happy dog",
     "That is a very happy person",
     "Today is a sunny day",
 ]
+
+model = SentenceTransformer(
+    "dunzhang/stella_en_400M_v5", 
+    trust_remote_code=True, 
+    device="cpu", 
+    config_kwargs={
+        "use_memory_efficient_attention": False, 
+        "unpad_inputs": False
+    }
+)
+
 embeddings = model.encode(sentences)
 
 similarities = model.similarity(embeddings, embeddings)
