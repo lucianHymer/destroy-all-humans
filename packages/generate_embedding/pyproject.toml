@@ -15,12 +15,16 @@ click = "^8.1.7"
 torch = "^2.5.1"
 wheel = "^0.45.0"
 torchvision = "^0.20.1"
+redis = "^5.2.0"
 
 [tool.poetry.dev-dependencies]
 black = "*"
 
 [tool.poetry.scripts]
 generate_embedding = "src.main:generate_embedding"
+
+[tool.poetry.group.dev.dependencies]
+types-redis = "^4.6.0.20241004"
 
 [build-system]
 requires = ["poetry-core"]
