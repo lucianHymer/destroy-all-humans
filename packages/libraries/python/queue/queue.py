@@ -1,12 +1,12 @@
 from typing import Type
 from datetime import datetime, timezone
 import uuid
-from .types import JsonValue
 from .message import Message
 from .controller import QueueController, QueueReceiveOptions
 from .controllers.redis_queue_controller import RedisQueueController
 from .helpers import print_error
 from .listener import QueueListener
+from .types import JsonValue
 
 
 class Queue:
@@ -52,6 +52,10 @@ class Queue:
         message = await self.send(data)
         return await message.receive_response(options)
 
+    # Example:
+    # async with queue.listen() as listener:
+    #     async for message in listener:
+    #         print(f"Received message")
     def listen(self, options: QueueReceiveOptions | None = None) -> QueueListener:
         """Create a context manager for listening to the queue"""
         return QueueListener(self, options)
