@@ -1,10 +1,12 @@
 import sys
 import time
 import asyncio
+from utils.queue import Queue, Message
+from utils.protocols.embeddings_pb2 import (
+    GenerateEmbeddingsRequest,
+    GenerateEmbeddingsResponse,
+)
 from sentence_transformers import SentenceTransformer
-from typing import List
-from pydantic import BaseModel
-from .utils.queue import Queue, Message, QueueReceiveOptions
 
 # Load the model once at startup
 start_time = time.time()
@@ -18,30 +20,25 @@ model_load_time = time.time() - start_time
 print(f"Model loading time: {model_load_time:.2f} seconds", file=sys.stderr)
 
 
-# TODO import JSON schema definitions or something else
-#      portable and simple
-
-
-class GenerateEmbeddingsRequest(BaseModel):
-    sentences: List[str]
-
-
-class GenerateEmbeddingsResponse(BaseModel):
-    embeddings: List[List[float]]
-
-
 def generate_embeddings_handler(
     message: Message,
 ) -> GenerateEmbeddingsResponse:
     try:
-        request = GenerateEmbeddingsRequest.model_validate(message.data)
-        sentences = request.sentences
+        request = GenerateEmbeddingsRequest()
+        request.ParseFromString(message.serialized_data)
+        sentences = [value for value in request.sentences]
 
         print(f"Generating embeddings for {len(sentences)} sentences", file=sys.stderr)
 
         embeddings = model.encode(sentences)
 
-        return GenerateEmbeddingsResponse(embeddings=embeddings.tolist())
+        response = GenerateEmbeddingsResponse()
+        for embedding in embeddings:
+            response_embedding = response.Embedding()
+            response_embedding.values.extend(embedding)
+            response.embeddings.append(response_embedding)
+
+        return response
     except Exception as e:
         print(f"Error generating embedding: {str(e)}", file=sys.stderr)
         raise
@@ -77,7 +74,7 @@ def generate_embeddings_handler(
 async def handle_generate_embeddings():
     async for message in Queue("generate_embedding").listen():
         response = generate_embeddings_handler(message)
-        await message.respond(response.model_dump())
+        await message.respond(response.SerializeToString())
 
 
 async def handle_compare_embeddings():
@@ -90,7 +87,10 @@ async def handle_compare_embeddings():
 
 
 async def main():
-    await asyncio.gather(handle_generate_embeddings(), handle_compare_embeddings())
+    try:
+        await asyncio.gather(handle_generate_embeddings(), handle_compare_embeddings())
+    finally:
+        await Queue.cleanup()
 
 
 if __name__ == "__main__":

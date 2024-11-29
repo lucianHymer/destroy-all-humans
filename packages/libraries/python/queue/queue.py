@@ -6,7 +6,6 @@ from .controller import QueueController, QueueReceiveOptions
 from .controllers.redis_queue_controller import RedisQueueController
 from .helpers import print_error
 from .listener import QueueListener
-from .types import JsonValue
 
 
 class Queue:
@@ -22,7 +21,7 @@ class Queue:
         """Factory function for creating new queues with same controller type"""
         return Queue(name, type(self._controller))
 
-    async def send(self, data: JsonValue) -> Message:
+    async def send(self, serialized_data: bytes) -> Message:
         """Send data and return a Message object"""
         print_error(
             f"Sending message to queue {self.name} of type {type(self._controller)}"
@@ -31,7 +30,7 @@ class Queue:
             id=str(uuid.uuid4()),
             timestamp=datetime.now(timezone.utc),
             queue_name=self.name,
-            data=data,
+            serialized_data=serialized_data,
             _queue_factory=self._create_queue,
         )
         await self._controller.send(message)
@@ -47,9 +46,9 @@ class Queue:
         return await self._controller.count()
 
     async def query(
-        self, data: JsonValue, options: QueueReceiveOptions | None = None
+        self, serialized_data: bytes, options: QueueReceiveOptions | None = None
     ) -> Message | None:
-        message = await self.send(data)
+        message = await self.send(serialized_data)
         return await message.receive_response(options)
 
     # Example:
@@ -59,3 +58,8 @@ class Queue:
     def listen(self, options: QueueReceiveOptions | None = None) -> QueueListener:
         """Create a context manager for listening to the queue"""
         return QueueListener(self, options)
+
+    @classmethod
+    async def cleanup(cls):
+        """Cleanup any resources used by the queue"""
+        await RedisQueueController.cleanup()

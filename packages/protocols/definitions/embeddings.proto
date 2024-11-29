@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package embeddings;
+
+// Request message for generating embeddings
+message GenerateEmbeddingsRequest {
+    string id = 1;
+    repeated string sentences = 2;
+}
+
+// Response message containing the generated embeddings
+message GenerateEmbeddingsResponse {
+    // Each embedding is a list of floats
+    message Embedding {
+        repeated float values = 1;
+    }
+    string id = 1;
+    repeated Embedding embeddings = 2;
+}

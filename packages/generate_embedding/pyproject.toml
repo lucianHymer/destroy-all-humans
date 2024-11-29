@@ -17,6 +17,7 @@ wheel = "^0.45.0"
 torchvision = "^0.20.1"
 redis = "^5.2.0"
 pydantic = "^2.9.2"
+protobuf = "^5.29.0"
 
 [tool.poetry.dev-dependencies]
 black = "*"
