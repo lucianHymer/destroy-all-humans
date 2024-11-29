@@ -1,0 +1,31 @@
+[tool.poetry]
+name = "embedding-server"
+version = "0.1.0"
+description = ""
+authors = ["Lucian Hymer <github@lucianhymer.com>"]
+readme = "README.md"
+packages = [
+    { include = "src" }
+]
+
+[tool.poetry.dependencies]
+python = ">=3.12,<3.13"
+sentence-transformers = "^3.3.0"
+click = "^8.1.7"
+torch = "^2.5.1"
+redis = "^5.2.0"
+pydantic = "^2.9.2"
+protobuf = "^5.29.0"
+
+[tool.poetry.dev-dependencies]
+black = "*"
+
+[tool.poetry.scripts]
+embedding_server = "src.main:embedding_server"
+
+[tool.poetry.group.dev.dependencies]
+types-redis = "^4.6.0.20241004"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
