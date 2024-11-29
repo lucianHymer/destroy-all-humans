@@ -21,7 +21,7 @@ protobuf = "^5.29.0"
 black = "*"
 
 [tool.poetry.scripts]
-embedding_sevrver = "src.main:embedding_sevrver"
+embedding_server = "src.main:embedding_server"
 
 [tool.poetry.group.dev.dependencies]
 types-redis = "^4.6.0.20241004"

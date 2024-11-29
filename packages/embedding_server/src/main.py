@@ -1,8 +1,9 @@
 import sys
 import time
 import asyncio
-from utils.queue import Queue, Message
-from utils.protocols.embeddings_pb2 import (
+import click
+from .utils.queue import Queue, Message
+from .utils.protocols.embeddings_pb2 import (
     GenerateEmbeddingsRequest,
     GenerateEmbeddingsResponse,
 )
@@ -86,12 +87,30 @@ async def handle_compare_embeddings():
 #     await message.respond(response)
 
 
-async def main():
+async def run():
     try:
         await asyncio.gather(handle_generate_embeddings(), handle_compare_embeddings())
     finally:
         await Queue.cleanup()
 
 
+@click.command(help="Server running an embedding model")
+def embedding_server():
+    try:
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        try:
+            loop.run_until_complete(run())
+        finally:
+            if loop.is_running():
+                loop.stop()
+            if not loop.is_closed():
+                loop.close()
+                asyncio.set_event_loop(None)
+    except Exception as e:
+        sys.stderr.write(f"Error running embedding server: {str(e)}\n")
+        sys.exit(1)
+
+
 if __name__ == "__main__":
-    asyncio.run(main())
+    embedding_server()
